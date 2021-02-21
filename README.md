@@ -1,7 +1,7 @@
 # proj1_michael_titus
 15 Puzzle Solver
 
-To use, run the program and follow the instructions.
+To use, run the solve.py program and follow the instructions.
 
 1. Input your starting position, putting spaces after each number and hitting "Enter" after each row. Put a "0" where the blank tile starts.
 2. After the last row is entered, the program will run through the nodes and save the order that the blank tile moves about the puzzle.
