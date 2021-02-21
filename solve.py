@@ -1,8 +1,8 @@
 import numpy as np
 
-initial_state = []
-goal_state = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 0]]
-states = {}
+initial_state = []      #Blank array to input initial state
+goal_state = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 0]]     #Goal state array
+states = {}     #Blank dictionary of states
 
 instructions = """
                 To enter the initial state of the puzzle, type the numbers of the puzzle
@@ -12,28 +12,28 @@ instructions = """
                 enter 0.
                 """
                 
-print(instructions)
+print(instructions)     #Pritns instructions for user inputting initial state
 
-for i in range(4):
+for i in range(4):      #This "for" loop allows the user to input the initial state row-by-row
    row = list(map(int, input("Enter row: ").split()))
    initial_state.append(row)
 
-initial_state = np.array(initial_state)
-goal_state = np.array(goal_state)
+initial_state = np.array(initial_state)     #Converts the intial state to a numpy array to allow numpy operations
+goal_state = np.array(goal_state)       #Converts the goal state to a numpy array to allow numpy operations
 
-states["I"] = initial_state
+states["I"] = initial_state         #Stores the first initial state in the states dictionary
 
-i,j = np.where(initial_state == 0)
+i,j = np.where(initial_state == 0)      #Finds the locations of blank tile in initial state
 
-x = 0
+x = 0       #Sets "x=o", this changes to x=1 when a solution is found, which breaks the "while" loop below
 
-def ReadAround(state): 
-    i,j = np.where(state == 0)
-    right_val = 16
+def ReadAround(state):      #This functions reads the current values around the blank tile
+    i,j = np.where(state == 0)      #Finds the blank tile
+    right_val = 16      #If the blank tile is along an edge, the value outside the puzzle is "16"
     left_val = 16
     up_val = 16
     down_val = 16
-    if i == 0:
+    if i == 0:      #The following "if", "elif", and "else" statements find the values around the blank tile
         if j == 0:
             right_val = state[0][1]
             down_val = state[1][0]
@@ -96,27 +96,27 @@ def ReadAround(state):
             up_val = state[2][j]
             return right_val, left_val, up_val, down_val
 
-def MoveUp(state):
-    i,j = np.where(state == 0)
-    child_up = state.copy() 
-    right_val, left_val, up_val, down_val = ReadAround(state)
-    key_list = list(states.keys())
-    new_key = key_list[x]
-    if up_val != 16:
+def MoveUp(state):      #This function finds the state of the puzzle if the blank tile moves up
+    i,j = np.where(state == 0)      #Finds the blank tile
+    child_up = state.copy()         #Copies the state to make a child state
+    right_val, left_val, up_val, down_val = ReadAround(state)       #Reads the values around the blank tile
+    key_list = list(states.keys())      #Lists the keys in dictionary
+    new_key = key_list[x]       #Finds the key for parent state
+    if up_val != 16:        #If the value above the blank is a valid number...
         i_new = int(i)
         j_new = int(j)
-        child_up[i_new][j_new] = up_val
+        child_up[i_new][j_new] = up_val   #Switch the blank tile with the value above it
         child_up[i_new-1][j_new] = 0
-        if any(np.array_equal(child_up, x) for x in list(states.values())):
+        if any(np.array_equal(child_up, x) for x in list(states.values())):     #If the new state is in dicitonary, ignore the new child state
             return child_up
         else:
-            states[new_key + "U"] = child_up
+            states[new_key + "U"] = child_up   #If the child state is not in diciontary, store it with the previous key + the direction the blank tile moved (in this case, "U" for up)
             return child_up
         return child_up
     else:
         return child_up
         
-def MoveDown(state):
+def MoveDown(state):        #Same as MoveUp, but for when blank tile moves down
     i,j = np.where(state == 0)
     child_down = state.copy()
     right_val, left_val, up_val, down_val = ReadAround(state)
@@ -135,7 +135,7 @@ def MoveDown(state):
     else:
         return child_down
 
-def MoveRight(state):
+def MoveRight(state):       #Same as MoveUp, but for when blank tile moves right
     i,j = np.where(state == 0)
     child_right = state.copy()
     right_val, left_val, up_val, down_val = ReadAround(state)
@@ -154,7 +154,7 @@ def MoveRight(state):
     else:
         return child_right
     
-def MoveLeft(state):
+def MoveLeft(state):        #Same as MoveUp, but for when blank tile moves left
     i,j = np.where(state == 0)
     child_left = state.copy()
     right_val, left_val, up_val, down_val = ReadAround(state)
@@ -173,7 +173,7 @@ def MoveLeft(state):
     else:
         return child_left
 
-def Update(state):
+def Update(state):      #Updates the parent state to find the four child states
     state_up = MoveUp(state)
     state_down = MoveDown(state)
     state_right = MoveRight(state)
@@ -182,13 +182,13 @@ def Update(state):
 
 solution = 0
 x = 0
-while solution == 0:
-    parent = list(states.values())[x]
-    if np.array_equal(parent, goal_state) == True:
+while solution == 0:        #While the solution hasn't yet been found...
+    parent = list(states.values())[x]       #Set current state as parent state
+    if np.array_equal(parent, goal_state) == True:          #If goal state is found, break this "while" loop
         solution = 1
         break
     else:
-        Update(parent)
+        Update(parent)      #Find child states for the current parent state
         x = x + 1
         print("Iteration #" , x)
         print("--------------------------")
@@ -202,6 +202,6 @@ answer = """
 print()
 print("Solution found!")
 print()
-print(answer)
+print(answer)    #Print instructions for reading output
 print()
-print(list(states.keys())[x])
+print(list(states.keys())[x])       #Print key for solution
